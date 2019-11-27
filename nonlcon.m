@@ -21,7 +21,7 @@ function [g, h] = nonlcon(z,N,dt,numStates,innerRadius,outerRadius,x_c,y_c,b,L)
     % 2nd constraint - inside of outer circle
     for i = 0:numSteps - 1
         % Define 1st constraint in 1st column
-        g(i + 1, 1) = innerRadius^2 - (x(i) - x_c)^2 - (y(i) - y_x)^2;
+        g(i + 1, 1) = innerRadius^2 - (x(i) - x_c)^2 - (y(i) - y_c)^2;
         % Define 2nd constraint in 1st column
 %         g(i + 1, 2) = (x(i) - x_c)^2 + (y(i) - y_c)^2 - outerRadius^2;
     end
