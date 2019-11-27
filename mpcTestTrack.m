@@ -50,7 +50,8 @@ plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
 
 %% Trajectory Generation
 % Constraints: 
-% 
+
+
 
 
 
