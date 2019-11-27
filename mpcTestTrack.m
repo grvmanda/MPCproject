@@ -22,8 +22,6 @@ r2 = 150;
 
 % Car Parameters
 
-global a b L
-
 a = 1.35;
 b = 1.45;
 L = a+b;
@@ -51,9 +49,31 @@ plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
 %% Trajectory Generation
 % Constraints: 
 
+% lb = 
 
 
+options = optimoptions('fmincon','SpecifyObjectiveGradient',true);
 
+
+xFinal = 0;
+yFinal = (r1+r2)/2;
+psiFinal = pi;
+numStates = 3;
+
+dt = 0.05;
+Npred = 20;
+Tspan = 0:dt:20;
+
+x_c = 0;
+y_c = 0;
+
+cf = @(z) costfun(z, Npred, xFinal, yFinal, psiFinal);
+nc = @(z) nonlcon(z,Npred,dt,numStates,r1,r2,x_c,y_c,b,L);
+
+x0 = [0, -(r1+r2)/2, 0];
+z0 = zeros(1,5*Npred-2);
+z0(1:3) = x0; 
+Z_ref = fmincon(cf, z0,[],[],[],[],[],[],nc,options);
 
 
 
@@ -70,9 +90,7 @@ plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
 
 %% FUNCTIONS
 
-function zdot = model(z, u, delta)
-
-  global b L
+function zdot = model(z, u, delta, b, L)
 
   x = z(1);
   y = z(2);
@@ -96,35 +114,4 @@ end
 
 
 
-function [J, dJ] = costfun(z, nsteps, xFinal, yFinal, psiFinal)
 
-    % size of J must be 1 x 1
-    x = @(i) z((i)*3+1);
-    y = @(i) z((i)*3+2);
-    psi = @(i) z((i)*3+3);
-    u = @(i) z((nsteps+1)*3+(2*i+1));
-    delta = @(i) z((nsteps+1)*3+(2*i+2));
-
-    J = 0;
-    for i = 0:nsteps
-        J = J + (x(i)-xFinal)^2 + (y(i)-yFinal)^2 + (psi(i)-psiFinal)^2;
-    end
-
-    for j = 0:nsteps-1
-        J = J + u(j)^2 + delta(j)^2;
-    end
-    
-    dJ = zeros(1, 3*(nsteps+1)+2*nsteps);
-
-    for i = 0:nsteps
-        dJ(3*(i)+1) = 2*(x(i)-xFinal);
-        dJ(3*(i)+2) = 2*(y(i)-yFinal;
-        dJ(3*(i)+3) = 2*(psi(i)-psiFinal);
-    end
-
-    for j = 0:nsteps-1
-        dJ(3*(nsteps+1)+2*j+1) = 2*u(j);
-        dJ(3*(nsteps+1)+2*j+2) = 2*delta(j);
-    end
-
-end
