@@ -59,6 +59,7 @@ xFinal = 0;
 yFinal = (r1+r2)/2;
 psiFinal = pi;
 numStates = 3;
+numInputs = 2;
 
 dt = 0.05;
 Npred = 20;
@@ -67,16 +68,29 @@ Tspan = 0:dt:20;
 x_c = 0;
 y_c = 0;
 
-cf = @(z) costfun(z, Npred, xFinal, yFinal, psiFinal);
-nc = @(z) nonlcon(z,Npred,dt,numStates,r1,r2,x_c,y_c,b,L);
+
+ub = [repmat([151 150 pi/2]', [Npred/dt+1 1]);...
+    repmat([30 0.5]', [Npred/dt 1])];
+
+lb = [repmat([-1 -150 -pi/2]', [Npred/dt+1 1]);...
+    repmat([10 -0.5]', [Npred/dt 1])];
+
+
+cf = @(z) costfun(z, Npred, dt, xFinal, yFinal, psiFinal);
+nc = @(z) nonlcon(z,Npred,dt,numStates,numInputs,r1,r2,x_c,y_c,b,L);
 
 x0 = [0, -(r1+r2)/2, 0];
-z0 = zeros(1,5*Npred-2);
+z0 = zeros(1,5*(Npred/dt+1)-2);
 z0(1:3) = x0; 
 Z_ref = fmincon(cf, z0,[],[],[],[],[],[],nc,options);
 
 
+nsteps = Npred/dt+1;
+Y0=reshape(Z_ref(1:3*nsteps),3,nsteps)';
+U=reshape(Z_ref(3*nsteps+1:end),2,nsteps-1);
 
+figure;
+plot(Y0(:,1), Y0(:,2), '*');
 
 
 

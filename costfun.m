@@ -1,4 +1,6 @@
-function [J, dJ] = costfun(z, nsteps, xFinal, yFinal, psiFinal)
+function [J, dJ] = costfun(z, N, dt, xFinal, yFinal, psiFinal)
+
+    nsteps = N/dt;
 
     % size of J must be 1 x 1
     x = @(i) z((i)*3+1);

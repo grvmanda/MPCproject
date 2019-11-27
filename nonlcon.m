@@ -1,7 +1,7 @@
-function [g, h] = nonlcon(z,N,dt,numStates,innerRadius,outerRadius,x_c,y_c,b,L)
+function [g, h] = nonlcon(z,N,dt,numStates,numInputs,innerRadius,outerRadius,x_c,y_c,b,L)
     % size of inequality cons is 401 * 1
     % states vector is 3x1, input vector is 2x1
-    numSteps = N / dt + 1;
+    numSteps = N/dt+1;
     numConstraints = 1;
     g = zeros(numSteps, numConstraints); % 401 * 2 (just one constraint for now)
     h = zeros(numStates * numSteps, 1);
@@ -9,8 +9,8 @@ function [g, h] = nonlcon(z,N,dt,numStates,innerRadius,outerRadius,x_c,y_c,b,L)
     x = @(i) z((i) * numStates + 1);
     y = @(i) z((i) * numStates + 2);
     psi = @(i) z((i) * 3 + 3);
-    delta = @(i) z(numSteps * numStates + (numInputs * i + 1));
-    u = @(i) z(numSteps * numStates + (numInputs * i + 2));
+    delta = @(i) z(numSteps * numStates + (numInputs * i + 2));
+    u = @(i) z(numSteps * numStates + (numInputs * i + 1));
     
     xdot = @(i) (u(i)*cos(psi(i)) - b/L*u(i)*tan(delta(i))*sin(psi(i)));
     ydot = @(i) (u(i)*sin(psi(i)) + b/L*u(i)*tan(delta(i))*cos(psi(i)));
@@ -28,7 +28,7 @@ function [g, h] = nonlcon(z,N,dt,numStates,innerRadius,outerRadius,x_c,y_c,b,L)
     
     h(1:numStates,1) = [x(0) y(0) psi(0)]; % no equality constraints
     
-    for i = 1:numSteps
+    for i = 1:numSteps - 1
         h(numStates * i + 1) = x(i) - x(i-1) - dt*xdot(i-1);
         h(numStates * i + 2) = y(i) - y(i-1) - dt*ydot(i-1);
         h(numStates * i + 3) = psi(i) - psi(i-1) - dt*psidot(i-1);
