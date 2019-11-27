@@ -1,3 +1,15 @@
+%% PROBLEM SETUP
+%{
+
+1. dt = 0.05;
+2. Npred = 20;
+3. Tspan = 0:dt:20;
+
+input 
+
+%}
+
+
 %% SETUP
 
 close all; clear all;
@@ -78,11 +90,11 @@ function zdot = model(z, u, delta)
 end
 
 
-function [g, dg, h, dg] = nlcon(z)
+%function [g, dg, h, dg] = nlcon(z)
 
   
 
 
-end
+%end
 
 
