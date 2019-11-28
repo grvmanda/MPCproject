@@ -1,16 +1,15 @@
-function [g, h] = nonlcon(z,N,dt,numStates,innerRadius,outerRadius,x_c,y_c,b,L)
+function [g, h] = nonlcon(z,numSteps,dt,numStates,numInputs,innerRadius,outerRadius,x_c,y_c,b,L)
     % size of inequality cons is 401 * 1
     % states vector is 3x1, input vector is 2x1
-    numSteps = N / dt + 1; % depends to tspan length not horizon
     numConstraints = 2;
     g = zeros(numSteps, numConstraints); % 401 * 2 (just one constraint for now)
     h = zeros(numStates * numSteps, 1);
     
     x = @(i) z((i) * numStates + 1);
     y = @(i) z((i) * numStates + 2);
-    psi = @(i) z((i) * 3 + 3);
-    delta = @(i) z(numSteps * numStates + (numInputs * i + 1));
-    u = @(i) z(numSteps * numStates + (numInputs * i + 2));
+    psi = @(i) z((i) * numStates + 3);
+    u = @(i) z(numSteps * numStates + (numInputs * i + 1));
+    delta = @(i) z(numSteps * numStates + (numInputs * i + 2));
     
     xdot = @(i) (u(i)*cos(psi(i)) - b/L*u(i)*tan(delta(i))*sin(psi(i)));
     ydot = @(i) (u(i)*sin(psi(i)) + b/L*u(i)*tan(delta(i))*cos(psi(i)));
