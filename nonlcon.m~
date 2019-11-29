@@ -7,9 +7,9 @@ function [g,h,dg,dh] = nonlcon(z,numSteps,dt,numStates,numInputs,innerRadius,out
     
     g = zeros(numSteps, numConstraints); % 401 * 2 
     h = zeros(totalStates, 1);
-    % for 2 constraints, dg should have twice as many columns (after
+    % for 2 constraints, dg should have twice as many rows (after
     % transposing)
-    dg = zeros(numConstraints*numSteps, totalStates + totalInputs - numInputs);
+    dg = zeros(numSteps, numConstraints*(totalStates + totalInputs - numInputs));
     dh = zeros(totalStates, totalStates + totalInputs - numInputs);
     
     x = @(i) z((i) * numStates + 1);
@@ -37,7 +37,8 @@ function [g,h,dg,dh] = nonlcon(z,numSteps,dt,numStates,numInputs,innerRadius,out
     for i = 0:numSteps - 1
         dg(i+1, ((i)*numStates+1):((i)*numStates+2)) = ...
             [(-2*(x(i)-x_c)), (-2*(y(i)-y_c))];
-        dg(numSteps+i+1, ((i)*numStates+1):((i)*numStates+2)) = ...
+        dg(i+1, (totalStates+totalInputs-numInputs+(i)*numStates+1): ...
+                (totalStates+totalInputs-numInputs+(i)*numStates+2)) = ...
                 [(2*(x(i)-x_c)), (2*(y(i)-y_c))];
     end
     

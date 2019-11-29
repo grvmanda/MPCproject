@@ -9,19 +9,19 @@ L = a+b;
 
 % Define Simulation Parameters
 dt = 0.05;
-Tspan = 0:dt:15;
+Tspan = 0:dt:10;
 numSteps = length(Tspan);
 
-xFinal = 7;
-yFinal = 3;
+xFinal = 10;
+yFinal = 10;
 psiFinal = 0;
 numStates = 3;
 numInputs = 2;
 
 options = optimoptions('fmincon','SpecifyConstraintGradient',true,'SpecifyObjectiveGradient',true);
 
-ub = [repmat([8 6 pi]', [numSteps 1]);...
-    repmat([1 0.5]', [numSteps-1 1])];
+ub = [repmat([11 11 pi]', [numSteps 1]);...
+    repmat([4 0.5]', [numSteps-1 1])];
 
 lb = [repmat([0 0 -pi]', [numSteps 1]);...
     repmat([0 -0.5]', [numSteps-1 1])];

@@ -46,11 +46,8 @@ plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
 %% Trajectory Generation
 % Constraints: 
 
-% lb = 
 
-
-options = optimoptions('fmincon','SpecifyObjectiveGradient',true);
-
+options = optimoptions('fmincon','SpecifyConstraintGradient',true,'SpecifyObjectiveGradient',true);
 
 xFinal = 0;
 yFinal = (r1+r2)/2;
@@ -59,22 +56,21 @@ numStates = 3;
 numInputs = 2;
 
 dt = 0.05;
-Npred = 20;
-Tspan = 0:dt:20;
+Tspan = 0:dt:60;
 numSteps = length(Tspan);
 
 x_c = 0;
 y_c = 0;
 
 
-ub = [repmat([151 150 1.1*pi]', [numSteps 1]);...
-    repmat([20 0.5]', [numSteps-1 1])];
+ub = [repmat([151 151 1.2*pi]', [numSteps 1]);...
+    repmat([10 0.5]', [numSteps-1 1])];
 
-lb = [repmat([0 -150 -1.1*pi]', [numSteps 1]);...
+lb = [repmat([0 -150 -1.2*pi]', [numSteps 1]);...
     repmat([0 -0.5]', [numSteps-1 1])];
 
 
-cf = @(z) costfun(z, Npred, dt, xFinal, yFinal, psiFinal);
+cf = @(z) costfun(z, numSteps, xFinal, yFinal, psiFinal);
 nc = @(z) nonlcon(z,numSteps,dt,numStates,numInputs,r1,r2,x_c,y_c,b,L);
 
 x0 = [0, -(r1+r2)/2, 0];
