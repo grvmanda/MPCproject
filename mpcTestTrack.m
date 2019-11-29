@@ -15,7 +15,7 @@ close all; clear variables; clc;
 
 % Circular track
 r1 = 100;
-r2 = 150;
+r2 = 110;
 
 % Car Parameters
 
@@ -47,27 +47,27 @@ plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
 % Constraints: 
 
 
-options = optimoptions('fmincon','SpecifyConstraintGradient',true,'SpecifyObjectiveGradient',true);
+options = optimoptions('fmincon','SpecifyConstraintGradient',true,'SpecifyObjectiveGradient',true,'PlotFcn','optimplotfunccount');
 
-xFinal = 0;
-yFinal = (r1+r2)/2;
-psiFinal = pi;
+xFinal = 50;
+yFinal = -120;
+psiFinal = pi/4;
 numStates = 3;
 numInputs = 2;
 
 dt = 0.05;
-Tspan = 0:dt:60;
+Tspan = 0:dt:15;
 numSteps = length(Tspan);
 
 x_c = 0;
 y_c = 0;
 
 
-ub = [repmat([151 151 1.2*pi]', [numSteps 1]);...
-    repmat([10 0.5]', [numSteps-1 1])];
+ub = [repmat([60 -100 0.5*pi]', [numSteps 1]);...
+    repmat([6 0.5]', [numSteps-1 1])];
 
-lb = [repmat([0 -150 -1.2*pi]', [numSteps 1]);...
-    repmat([0 -0.5]', [numSteps-1 1])];
+lb = [repmat([0 -110 -0.5*pi]', [numSteps 1]);...
+    repmat([5 -0.5]', [numSteps-1 1])];
 
 
 cf = @(z) costfun(z, numSteps, xFinal, yFinal, psiFinal);
@@ -76,6 +76,7 @@ nc = @(z) nonlcon(z,numSteps,dt,numStates,numInputs,r1,r2,x_c,y_c,b,L);
 x0 = [0, -(r1+r2)/2, 0];
 z0 = zeros(1,5*(numSteps)-2);
 z0(1:3) = x0; 
+z0(numSteps * numStates + 1) = 5; % initial speed of 10
 Z_ref = fmincon(cf, z0,[],[],[],[],lb',ub',nc,options);
 
 
