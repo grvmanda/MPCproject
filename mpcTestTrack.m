@@ -49,14 +49,14 @@ plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
 
 options = optimoptions('fmincon','SpecifyConstraintGradient',true,'SpecifyObjectiveGradient',true,'PlotFcn','optimplotfunccount');
 
-xFinal = 50;
-yFinal = -120;
-psiFinal = pi/4;
+xFinal = 10;
+yFinal = -105;
+psiFinal = 0;
 numStates = 3;
 numInputs = 2;
 
 dt = 0.05;
-Tspan = 0:dt:15;
+Tspan = 0:dt:5;
 numSteps = length(Tspan);
 
 x_c = 0;
@@ -64,10 +64,10 @@ y_c = 0;
 
 
 ub = [repmat([60 -100 0.5*pi]', [numSteps 1]);...
-    repmat([6 0.5]', [numSteps-1 1])];
+    repmat([1 0.5]', [numSteps-1 1])];
 
 lb = [repmat([0 -110 -0.5*pi]', [numSteps 1]);...
-    repmat([5 -0.5]', [numSteps-1 1])];
+    repmat([0 -0.5]', [numSteps-1 1])];
 
 
 cf = @(z) costfun(z, numSteps, xFinal, yFinal, psiFinal);
@@ -76,7 +76,7 @@ nc = @(z) nonlcon(z,numSteps,dt,numStates,numInputs,r1,r2,x_c,y_c,b,L);
 x0 = [0, -(r1+r2)/2, 0];
 z0 = zeros(1,5*(numSteps)-2);
 z0(1:3) = x0; 
-z0(numSteps * numStates + 1) = 5; % initial speed of 10
+%z0(numSteps * numStates + 1) = 5; % initial speed of 10
 Z_ref = fmincon(cf, z0,[],[],[],[],lb',ub',nc,options);
 
 

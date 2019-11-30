@@ -5,11 +5,14 @@ function [g,h,dg,dh] = nonlcon(z,numSteps,dt,numStates,numInputs,innerRadius,out
     totalInputs = numInputs * numSteps;
     numConstraints = 2;
     
-    g = zeros(numSteps, numConstraints); % 401 * 2 
+%     g = zeros(numSteps, numConstraints); % 401 * 2 
+    g1 = zeros(numSteps, 1);
+    g2 = zeros(numSteps, 1);
     h = zeros(totalStates, 1);
     % for 2 constraints, dg should have twice as many columns (after
     % transposing)
-    dg = zeros(numConstraints*numSteps, totalStates + totalInputs - numInputs);
+    dg1 = zeros(numSteps, totalStates + totalInputs - numInputs);
+    dg2 = zeros(numSteps, totalStates + totalInputs - numInputs);
     dh = zeros(totalStates, totalStates + totalInputs - numInputs);
     
     x = @(i) z((i) * numStates + 1);
@@ -22,24 +25,29 @@ function [g,h,dg,dh] = nonlcon(z,numSteps,dt,numStates,numInputs,innerRadius,out
     ydot = @(i) (u(i)*sin(psi(i)) + b/L*u(i)*tan(delta(i))*cos(psi(i)));
     psidot = @(i) (u(i)/L)*tan(delta(i));
     
+    
     % Build inequality constraints
     % 1st constraint - outside of inner circle
     % 2nd constraint - inside of outer circle
     for i = 0:numSteps - 1
         % Define 1st constraint in 1st column
-        g(i + 1, 1) = innerRadius^2 - (x(i) - x_c)^2 - (y(i) - y_c)^2;
+        g1(i + 1, 1) = innerRadius^2 - (x(i) - x_c)^2 - (y(i) - y_c)^2;
         % Define 2nd constraint in 1st column
-        g(i + 1, 2) = (x(i) - x_c)^2 + (y(i) - y_c)^2 - outerRadius^2;
+        g2(i + 1, 1) = (x(i) - x_c)^2 + (y(i) - y_c)^2 - outerRadius^2;
     end
+    
+    g = [g1;g2];
     
     % Build dg based on gradient of the constraints
     % Only x and y are included in the constraints
     for i = 0:numSteps - 1
-        dg(i+1, ((i)*numStates+1):((i)*numStates+2)) = ...
+        dg1(i+1, ((i)*numStates+1):((i)*numStates+2)) = ...
             [(-2*(x(i)-x_c)), (-2*(y(i)-y_c))];
-        dg(numSteps+i+1, ((i)*numStates+1):((i)*numStates+2)) = ...
+        dg2(i+1, ((i)*numStates+1):((i)*numStates+2)) = ...
                 [(2*(x(i)-x_c)), (2*(y(i)-y_c))];
     end
+    
+    dg = [dg1; dg2];
     
     dg = dg';
     
