@@ -33,7 +33,7 @@ path.yR = r2*sin(thetaVal);
 path.xCL = ((r1 + r2)/2)*cos(thetaVal);
 path.yCL = ((r1 + r2)/2)*sin(thetaVal);
 
-% PATH GEN
+%% PATH GEN
 % Path is a semi-circle for now.
 % r1 is radius of inner circle
 % r2 is radius of outer circle
@@ -65,7 +65,7 @@ path.yCL = ((r1 + r2)/2)*sin(thetaVal);
 
 % delta reference calculation
 
-% delta_ref = ones(1, length(poses))*0.02635;    
+% delta_ref = ones(1, length(poses))*0.02635; % delta_ref to follow a curve of constant radius  
     
 % test reference
 
@@ -86,9 +86,10 @@ path.yCL = ((r1 + r2)/2)*sin(thetaVal);
 % hold off;
 
 
-% lane change maneuver
+%% lane change maneuver
 dubConnObj = dubinsConnection;
 
+% at 5 m/s this lane change takes like 2s
 startPose = [0 0 0];
 goalPose = [10 3 0];
 
@@ -115,7 +116,7 @@ poses = interpolate(pathSegObj{1},0:dlen:len);
 delta_ref = zeros(1,length(poses));
 
 delta_ref = deg2rad(delta_ref);
-% manual changing
+% manual obtained steering command for a lane change maneuver
 delta_ref(1) = 0.06;
 delta_ref(2) = 0.13;
 delta_ref(3) = 0.22;
