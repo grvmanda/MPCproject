@@ -8,7 +8,7 @@ function [poses, delta_ref] = ref_traj_gen(startPose, goalPose)
 
     pathSegObj = connect(dubConnObj,startPose,goalPose);
 
-    dubConnObj.MinTurningRadius = 105;
+    dubConnObj.MinTurningRadius = 1;
 
     [pathSegObj, pathCosts] = connect(dubConnObj,startPose,goalPose);
     pathSegObj{1}.MotionTypes
