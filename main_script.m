@@ -15,18 +15,43 @@ L = a+b;
 
 %% trajectory
 
-startPose = [0 0 0];
-goalPose = [10 3 0];
 
-[poses, ~] = ref_traj_gen(startPose, goalPose);
+% 
+% startPose = [0 0 0];
+% goalPose = [10 3 0];
+% 
+% [poses, ~] = ref_traj_gen(startPose, goalPose, 1);
+% 
+% load('delta_lanechange_left.mat')
 
-load('delta_lanechange_left.mat')
+startPose = [0 -105 0];
+goalPose = [105 0 pi/2];
 
+[poses1, delta_ref1] = ref_traj_gen(startPose, goalPose, 105);
+
+dist_travelled = 10;
+theta_diff = dist_travelled/105;
+
+startPose = [105 0 pi/2];
+% goalPose = [(105*cos(theta_diff)) (0+105*sin(theta_diff)) (pi/2+theta_diff)];
+goalPose = [(102*cos(theta_diff)) (0+102*sin(theta_diff)) (pi/2+theta_diff)];
+
+[poses2, delta_ref2] = ref_traj_gen(startPose, goalPose, 5);
+
+startPose = [(102*cos(theta_diff)) (0+102*sin(theta_diff)) (pi/2+theta_diff)];
+goalPose = [0 102 pi];
+
+[poses3, delta_ref3] = ref_traj_gen(startPose, goalPose, 102);
+
+poses = [poses1;...
+    poses2;...
+    poses3];
+delta_ref_complete = [delta_ref1*0, delta_ref2*0, delta_ref3*0];
 
 %% Model Setup
 Y_ref = poses';
 U_ref = [constVel*ones(1, length(poses));...
-    delta_ref];
+    delta_ref_complete];
 
 x = @(i) Y_ref(1, i);
 y = @(i) Y_ref(2, i);
@@ -115,6 +140,14 @@ for i=1:length(T)-1
     %store final state
     Y(:,i+1)=ztemp(end,:)';
 end
+
+figure;
+plot(Y_ref(1,:),Y_ref(2,:))
+hold on
+xlabel('x [m]')
+ylabel('y [m]')
+plot(Y(1,:),Y(2,:))
+hold off
 
 figure;
 subplot(3,1,1)
