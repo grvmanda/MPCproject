@@ -4,7 +4,7 @@
 
 % npred is the length of the prediction horizon
 
-function [Y,U] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B)
+function [Y,U] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs)
     
     % Define vehicle parameters
     b = 1.45;

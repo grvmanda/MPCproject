@@ -28,10 +28,12 @@ path.yL = r1*sin(thetaVal);
 path.yR = r2*sin(thetaVal);
 path.xCL = ((r1 + r2)/2)*cos(thetaVal);
 path.yCL = ((r1 + r2)/2)*sin(thetaVal);
+path.theta = thetaVal;
+path.cline = [path.xCL;...
+    path.yCL];
 
 
 %% trajectory
-
 
 startPose = [0 -rightLaneCenterR 0];
 goalPose = [rightLaneCenterR 0 pi/2];
@@ -95,60 +97,11 @@ npred=10;
 Ndec=(npred+1)*nstates+ninputs*npred;
 T = 0:dt:dt*(length(poses)-1);
 
-%final trajectory
-Y=NaN(3,length(T));
+numObs = 7;
 
-%applied inputs
-U=NaN(2,length(T));
+Xobs = generateRandomObstacles(numObs,path);
 
-%input from QP
-u_mpc=NaN(2,length(T));
-
-%error in states (actual-reference)
-eY=NaN(3,length(T));
-
-%set random initial condition
-eY0=[0;-0.25;0];
-Y(:,1)=Y_ref(:,1)-eY0;
-
-for i=1:length(T)-1
-    %shorten prediction horizon if we are at the end of trajectory
-    npred_i=min([npred,length(T)-i]);
-    
-    %calculate error
-    eY(:,i)=Y(:,i)-Y_ref(:,i);
-
-    %generate equality constraints
-    [Aeq,beq]=eq_cons(i,A,B,eY(:,i),npred_i,nstates,ninputs);
-    
-    %generate boundary constraints
-    [Lb,Ub]=bound_cons(i,U_ref,npred_i,input_range,nstates,ninputs);
-    
-    %cost for states
-    Q=[1,1,0.5];
-    
-    %cost for inputs
-    R=[0.1,0.01];
-    
-    H=diag([repmat(Q,[1,npred_i+1]),repmat(R,[1,npred_i])]);
-    
-    f=zeros(nstates*(npred_i+1)+ninputs*npred_i,1);
-    
-    [x,fval] = quadprog(H,f,[],[],Aeq,beq,Lb,Ub);
-    
-    %get linearized input
-    u_mpc(:,i)=x(nstates*(npred_i+1)+1:nstates*(npred_i+1)+ninputs);
-    
-    %get input
-    U(:,i)=u_mpc(:,i)+U_ref(:,i);
-    
-    
-    %simulate model
-    [~,ztemp]=ode45(@(t,z)kinematic_bike_dynamics(t,z,U(:,i),0,b,L),[0 dt],Y(:,i));
-    
-    %store final state
-    Y(:,i+1)=ztemp(end,:)';
-end
+[Y,U] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs);
 
 figure;
 plot(Y_ref(1,:),Y_ref(2,:))
@@ -158,6 +111,12 @@ ylabel('y [m]')
 plot(Y(1,:),Y(2,:))
 plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
     path.xCL, path.yCL, 'b');
+
+for i=1:numObs
+    ob = Xobs{i};
+    plot(ob(:,1), ob(:,2));
+end
+
 hold off
 
 figure;
