@@ -13,35 +13,44 @@ a = 1.35;
 b = 1.45;
 L = a+b;
 
+r1 = 97;
+r2 = 103;
+
+leftLaneCenterR = 98.5;
+rightLaneCenterR = 101.5;
+
+path.numPoints = 1001;
+thetaVal = linspace(-pi/2, pi/2, path.numPoints);
+  
+path.xL = r1*cos(thetaVal);
+path.xR = r2*cos(thetaVal);
+path.yL = r1*sin(thetaVal);
+path.yR = r2*sin(thetaVal);
+path.xCL = ((r1 + r2)/2)*cos(thetaVal);
+path.yCL = ((r1 + r2)/2)*sin(thetaVal);
+
+
 %% trajectory
 
 
-% 
-% startPose = [0 0 0];
-% goalPose = [10 3 0];
-% 
-% [poses, ~] = ref_traj_gen(startPose, goalPose, 1);
-% 
-% load('delta_lanechange_left.mat')
+startPose = [0 -rightLaneCenterR 0];
+goalPose = [rightLaneCenterR 0 pi/2];
 
-startPose = [0 -105 0];
-goalPose = [105 0 pi/2];
-
-[poses1, delta_ref1] = ref_traj_gen(startPose, goalPose, 105);
+[poses1, delta_ref1] = ref_traj_gen(startPose, goalPose, rightLaneCenterR);
 
 dist_travelled = 10;
-theta_diff = dist_travelled/105;
+theta_diff = dist_travelled/rightLaneCenterR;
 
-startPose = [105 0 pi/2];
+startPose = [rightLaneCenterR 0 pi/2];
 % goalPose = [(105*cos(theta_diff)) (0+105*sin(theta_diff)) (pi/2+theta_diff)];
-goalPose = [(102*cos(theta_diff)) (0+102*sin(theta_diff)) (pi/2+theta_diff)];
+goalPose = [(leftLaneCenterR*cos(theta_diff)) (0+leftLaneCenterR*sin(theta_diff)) (pi/2+theta_diff)];
 
 [poses2, delta_ref2] = ref_traj_gen(startPose, goalPose, 5);
 
-startPose = [(102*cos(theta_diff)) (0+102*sin(theta_diff)) (pi/2+theta_diff)];
-goalPose = [0 102 pi];
+startPose = [(leftLaneCenterR*cos(theta_diff)) (0+leftLaneCenterR*sin(theta_diff)) (pi/2+theta_diff)];
+goalPose = [0 leftLaneCenterR pi];
 
-[poses3, delta_ref3] = ref_traj_gen(startPose, goalPose, 102);
+[poses3, delta_ref3] = ref_traj_gen(startPose, goalPose, leftLaneCenterR);
 
 poses = [poses1;...
     poses2;...
@@ -147,6 +156,8 @@ hold on
 xlabel('x [m]')
 ylabel('y [m]')
 plot(Y(1,:),Y(2,:))
+plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
+    path.xCL, path.yCL, 'b');
 hold off
 
 figure;
