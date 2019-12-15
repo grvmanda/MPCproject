@@ -110,14 +110,17 @@ Xobs = generateRandomObstacles(numObs,path);
 Y = [];
 U = [];
 
+turningCurrently = 0;
+
 while true
-    [Yt,Ut, turn] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs,path);
+    [Yt,Ut, turn] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs,path,turningCurrently);
     Y = [Y, Yt];
     U = [U, Ut];
-    if (length(Y) > length(T)-10)
+    if (length(Y) > 3000)
         break;
     else
         if (turn == 1)      % turn to right lane
+            turningCurrently = 1;
             startPose = Yt(:,end)';
             dist_travelled = 10;
             theta_diff = dist_travelled/rightLaneCenterR;
@@ -132,9 +135,11 @@ while true
             [poses2, ~] = ref_traj_gen(startPose, goalPose, rightLaneCenterR);
             
             poses = [poses1;poses2];
-            
             computeModelHandles(poses);
+            
+            T = 0:dt:dt*(length(poses)-1);
         elseif (turn == 2)  % turn to left lane
+            turningCurrently = 1;
             startPose = Yt(:,end)';
             dist_travelled = 10;
             theta_diff = dist_travelled/leftLaneCenterR;
@@ -150,6 +155,8 @@ while true
             
             poses = [poses1;poses2];
             computeModelHandles(poses);
+            
+            T = 0:dt:dt*(length(poses)-1);
         end
     end
 end
