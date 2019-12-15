@@ -4,8 +4,10 @@
 
 % npred is the length of the prediction horizon
 
-function [Y,U] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs)
+function [Y,U,turn] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs,path)
     
+    turn = 0;
+
     % Define vehicle parameters
     b = 1.45;
     L = 2.8;
@@ -68,11 +70,34 @@ function [Y,U] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs)
         
         % check for obstacles ahead
         hasObs = ~isempty(senseObstacles(Y(:,i+1),Xobs)); % might need to fix
-        
+       
         if hasObs
-            U = U(:,1:i);
-            Y = Y(:,1:i+1);
-            break;
+            obs1 = senseObstacles(Y(:,i+1),Xobs);
+            
+            obs_center = obstacleCenter(obs1);
+            OBSdists_to_left = min(vecnorm(obs_center' - [path.xL; path.yL]));
+            OBSdists_to_right = min(vecnorm(obs_center' - [path.xR; path.yR]));
+            EGOdists_to_left = min(vecnorm(Y(1:2,i+1) - [path.xL; path.yL]));
+            EGOdists_to_right = min(vecnorm(Y(1:2,i+1) - [path.xR; path.yR]));
+            if ((OBSdists_to_right > OBSdists_to_left) && (EGOdists_to_right > EGOdists_to_left))
+                turn = 1;   % turn right
+                U = U(:,1:i);
+                Y = Y(:,1:i+1);
+                break;
+            elseif ((OBSdists_to_right < OBSdists_to_left) && (EGOdists_to_right < EGOdists_to_left)) 
+                turn = 2;   % turn left
+                U = U(:,1:i);
+                Y = Y(:,1:i+1);
+                break;
+            end
         end
     end
+end
+
+function [obs_center] = obstacleCenter(obs)
+    for i = 1:length(obs)
+        obs_center_x(i,1) = (obs{1,i}(1,1) + obs{1,i}(3,1))/2;
+        obs_center_y(i,1) = (obs{1,i}(1,2) + obs{1,i}(3,2))/2;
+    end
+    obs_center = [obs_center_x obs_center_y];
 end

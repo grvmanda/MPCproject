@@ -4,6 +4,8 @@ close all; clear all; clc;
 
 %% Constants
 
+global a b L constVel dt
+
 constVel = 5;
 dt = 0.01;
 
@@ -60,28 +62,32 @@ poses = [poses1;...
 delta_ref_complete = [delta_ref1*0, delta_ref2*0, delta_ref3*0];
 
 %% Model Setup
-Y_ref = poses';
-U_ref = [constVel*ones(1, length(poses));...
-    delta_ref_complete];
+% Y_ref = poses';
+% U_ref = [constVel*ones(1, length(poses));...
+%     delta_ref_complete];
+% 
+% x = @(i) Y_ref(1, i);
+% y = @(i) Y_ref(2, i);
+% psi = @(i) Y_ref(3, i);
+% 
+% u = @(i) U_ref(1, i);
+% delta = @(i) U_ref(2, i);
+% 
+% A_disc = @(i) [0, 0, (-u(i)*sin(psi(i))-b/L*u(i)*tan(delta(i))*cos(psi(i)));...
+%     0, 0, (u(i)*cos(psi(i))-b/L*u(i)*tan(delta(i))*sin(psi(i)));...
+%     0, 0, 0];
+%   
+% A = @(i) (eye(3) + dt*A_disc(i));
+% 
+% B = @(i) dt*[(cos(psi(i))-b/L*tan(delta(i))*sin(psi(i))), ...
+%     ((-b/L)*u(i)*(sec(delta(i)))^2*sin(psi(i)));...
+%     (sin(psi(i))+b/L*tan(delta(i))*cos(psi(i))),...
+%     (b/L*u(i)*(sec(delta(i)))^2*cos(psi(i)));...
+%     (1/L*tan(delta(i))), (u(i)/L*(sec(delta(i)))^2)];
 
-x = @(i) Y_ref(1, i);
-y = @(i) Y_ref(2, i);
-psi = @(i) Y_ref(3, i);
+global Y_ref U_ref A B x y psi u delta A_disc
 
-u = @(i) U_ref(1, i);
-delta = @(i) U_ref(2, i);
-
-A_disc = @(i) [0, 0, (-u(i)*sin(psi(i))-b/L*u(i)*tan(delta(i))*cos(psi(i)));...
-    0, 0, (u(i)*cos(psi(i))-b/L*u(i)*tan(delta(i))*sin(psi(i)));...
-    0, 0, 0];
-  
-A = @(i) (eye(3) + dt*A_disc(i));
-
-B = @(i) dt*[(cos(psi(i))-b/L*tan(delta(i))*sin(psi(i))), ...
-    ((-b/L)*u(i)*(sec(delta(i)))^2*sin(psi(i)));...
-    (sin(psi(i))+b/L*tan(delta(i))*cos(psi(i))),...
-    (b/L*u(i)*(sec(delta(i)))^2*cos(psi(i)));...
-    (1/L*tan(delta(i))), (u(i)/L*(sec(delta(i)))^2)];
+computeModelHandles(poses);
 
 %% MPC Setup
 
@@ -105,7 +111,7 @@ Y = [];
 U = [];
 
 while true
-    [Yt,Ut] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs);
+    [Yt,Ut, turn] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs,path);
     Y = [Y, Yt];
     U = [U, Ut];
     if (length(Y) < length(T)-10)
@@ -155,3 +161,35 @@ hold off
 % subplot(3,1,3)
 % plot(Y_ref(1,:),U(2,:))
 
+
+%% FUNCTIONS
+
+function computeModelHandles(poses)
+
+    global Y_ref U_ref A B x y psi u delta A_disc constVel dt b L
+    
+    Y_ref = poses';
+    U_ref = [constVel*ones(1, length(poses));...
+        zeros(1, length(poses))];
+
+    x = @(i) Y_ref(1, i);
+    y = @(i) Y_ref(2, i);
+    psi = @(i) Y_ref(3, i);
+
+    u = @(i) U_ref(1, i);
+    delta = @(i) U_ref(2, i);
+
+    A_disc = @(i) [0, 0, (-u(i)*sin(psi(i))-b/L*u(i)*tan(delta(i))*cos(psi(i)));...
+        0, 0, (u(i)*cos(psi(i))-b/L*u(i)*tan(delta(i))*sin(psi(i)));...
+        0, 0, 0];
+
+    A = @(i) (eye(3) + dt*A_disc(i));
+
+    B = @(i) dt*[(cos(psi(i))-b/L*tan(delta(i))*sin(psi(i))), ...
+        ((-b/L)*u(i)*(sec(delta(i)))^2*sin(psi(i)));...
+        (sin(psi(i))+b/L*tan(delta(i))*cos(psi(i))),...
+        (b/L*u(i)*(sec(delta(i)))^2*cos(psi(i)));...
+        (1/L*tan(delta(i))), (u(i)/L*(sec(delta(i)))^2)];
+
+
+end

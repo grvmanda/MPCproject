@@ -63,8 +63,8 @@ function Xobs = generateRandomObstacles(Nobs,TestTrack)
     % generate a random size and random side of the road for each obstacle;
     % the parameters below work well for the COTA track segment that we are
     % using in ROB 599
-    obs_min_length = 1 ;
-    obs_max_length = 3 ;
+    obs_min_length = 2 ;
+    obs_max_length = 2 ;
     obs_min_width = 2 ; % tunable
     obs_max_width = 2 ; % tunable
     obs_lengths = (obs_max_length - obs_min_length).*rand(1,Nobs) + obs_min_length ;
@@ -97,7 +97,7 @@ function Xobs = generateRandomObstacles(Nobs,TestTrack)
         
         % if the box is on left side of track, shift it by +widx in its
         % local y-direction
-        offset = 2; % tunable
+        offset = 3; % tunable
         
         if hidx < 0
             obs_box = obs_box + obs_sides(idx).*[zeros(1,4) ; offset.*ones(1,4)] ;
