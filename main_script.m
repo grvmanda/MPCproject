@@ -114,10 +114,43 @@ while true
     [Yt,Ut, turn] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs,path);
     Y = [Y, Yt];
     U = [U, Ut];
-    if (length(Y) < length(T)-10)
+    if (length(Y) > length(T)-10)
         break;
     else
-        
+        if (turn == 1)      % turn to right lane
+            startPose = Yt(:,end)';
+            dist_travelled = 10;
+            theta_diff = dist_travelled/rightLaneCenterR;
+            new_theta = Yt(3,end)+theta_diff;
+            goalPose = [rightLaneCenterR*sin(new_theta),...
+                -rightLaneCenterR*cos(new_theta),...
+                new_theta];
+            [poses1, ~] = ref_traj_gen(startPose, goalPose, 5);
+            
+            startPose = goalPose;
+            goalPose = [0 rightLaneCenterR pi];
+            [poses2, ~] = ref_traj_gen(startPose, goalPose, rightLaneCenterR);
+            
+            poses = [poses1;poses2];
+            
+            computeModelHandles(poses);
+        elseif (turn == 2)  % turn to left lane
+            startPose = Yt(:,end)';
+            dist_travelled = 10;
+            theta_diff = dist_travelled/leftLaneCenterR;
+            new_theta = Yt(3,end)+theta_diff;
+            goalPose = [leftLaneCenterR*sin(new_theta), ...
+                -leftLaneCenterR*cos(new_theta), ...
+                new_theta];
+            [poses1, ~] = ref_traj_gen(startPose, goalPose, 5);
+            
+            startPose = goalPose;
+            goalPose = [0 leftLaneCenterR pi];
+            [poses2, ~] = ref_traj_gen(startPose, goalPose, leftLaneCenterR);
+            
+            poses = [poses1;poses2];
+            computeModelHandles(poses);
+        end
     end
 end
 

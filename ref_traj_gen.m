@@ -13,8 +13,8 @@ function [poses, delta_ref] = ref_traj_gen(startPose, goalPose, minRadius)
     [pathSegObj, pathCosts] = connect(dubConnObj,startPose,goalPose);
     pathSegObj{1}.MotionTypes
 
-    figure;
-    show(pathSegObj{1})
+%     figure;
+%     show(pathSegObj{1})
     
     len = pathSegObj{1}.Length;
 
@@ -23,8 +23,8 @@ function [poses, delta_ref] = ref_traj_gen(startPose, goalPose, minRadius)
     dlen = constVel*dt;
 
     poses = interpolate(pathSegObj{1},0:dlen:len);
-    figure;
-    quiver(poses(:,1),poses(:,2),cos(poses(:,3)),sin(poses(:,3)),0.5)
+%     figure;
+%     quiver(poses(:,1),poses(:,2),cos(poses(:,3)),sin(poses(:,3)),0.5)
 
     % delta reference calculation
     % TODO: add something here for directions
