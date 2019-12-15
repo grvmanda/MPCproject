@@ -22,6 +22,6 @@ function Xobs_seen = senseObstacles(curr_pos, Xobs)
     
     Xobs_mat = cell2mat(Xobs');
     dist = (Xobs_mat(:,1) - curr_pos(1)).^2 + (Xobs_mat(:,2) - curr_pos(2)).^2;
-    idx = unique(ceil(find(dist<=150^2)/4));
+    idx = unique(ceil(find(dist<=10^2)/4));
     Xobs_seen = {Xobs{idx}};
 end

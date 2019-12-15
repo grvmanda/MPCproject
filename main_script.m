@@ -101,10 +101,22 @@ numObs = 7;
 
 Xobs = generateRandomObstacles(numObs,path);
 
-[Y,U] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs);
+Y = [];
+U = [];
+
+while true
+    [Yt,Ut] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs);
+    Y = [Y, Yt];
+    U = [U, Ut];
+    if (length(Y) < length(T)-10)
+        break;
+    else
+        
+    end
+end
 
 figure;
-plot(Y_ref(1,:),Y_ref(2,:))
+% plot(Y_ref(1,:),Y_ref(2,:))
 hold on
 xlabel('x [m]')
 ylabel('y [m]')
@@ -119,27 +131,27 @@ end
 
 hold off
 
-figure;
-subplot(3,1,1)
-plot(Y_ref(1,:),Y_ref(2,:))
-hold on
-xlabel('x [m]')
-ylabel('y [m]')
-subplot(3,1,2)
-plot(Y_ref(1,:),U_ref(1,:))
-hold on
-xlabel('x [m]')
-ylabel('u [m/s]')
-subplot(3,1,3)
-plot(Y_ref(1,:),U_ref(2,:))
-hold on
-xlabel('x [m]')
-ylabel('\delta_f [rad]')
-
-subplot(3,1,1)
-plot(Y(1,:),Y(2,:))
-subplot(3,1,2)
-plot(Y_ref(1,:),U(1,:))
-subplot(3,1,3)
-plot(Y_ref(1,:),U(2,:))
+% figure;
+% subplot(3,1,1)
+% plot(Y_ref(1,:),Y_ref(2,:))
+% hold on
+% xlabel('x [m]')
+% ylabel('y [m]')
+% subplot(3,1,2)
+% plot(Y_ref(1,:),U_ref(1,:))
+% hold on
+% xlabel('x [m]')
+% ylabel('u [m/s]')
+% subplot(3,1,3)
+% plot(Y_ref(1,:),U_ref(2,:))
+% hold on
+% xlabel('x [m]')
+% ylabel('\delta_f [rad]')
+% 
+% subplot(3,1,1)
+% plot(Y(1,:),Y(2,:))
+% subplot(3,1,2)
+% plot(Y_ref(1,:),U(1,:))
+% subplot(3,1,3)
+% plot(Y_ref(1,:),U(2,:))
 
