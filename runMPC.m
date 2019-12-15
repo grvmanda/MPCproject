@@ -31,8 +31,8 @@ function [Y,U,turn] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs,pat
     Y(:,1) = Y_ref(:,1) - eY0;
     
     
-%     for i = 1:T_length - 1
-    for i = 1:3100 - 1
+    for i = 1:T_length - 1
+%     for i = 1:3100 - 1
         % shorten prediction horizon if we are at the end of trajectory
         npred_i = min([npred,T_length-i]);
 

@@ -116,7 +116,25 @@ while true
     [Yt,Ut, turn] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs,path,turningCurrently);
     Y = [Y, Yt];
     U = [U, Ut];
-    if (length(Y) > 3000)
+    
+    figure;
+    % plot(Y_ref(1,:),Y_ref(2,:))
+    hold on
+    xlabel('x [m]')
+    ylabel('y [m]')
+    plot(Y(1,:),Y(2,:))
+    plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
+        path.xCL, path.yCL, 'b');
+
+    for i=1:numObs
+        ob = Xobs{i};
+        plot(ob(:,1), ob(:,2));
+    end
+
+    hold off
+    
+    
+    if (length(Y) > 5000)
         break;
     else
         if (turn == 1)      % turn to right lane
@@ -128,13 +146,11 @@ while true
             goalPose = [rightLaneCenterR*sin(new_theta),...
                 -rightLaneCenterR*cos(new_theta),...
                 new_theta];
-            [poses1, ~] = ref_traj_gen(startPose, goalPose, 5);
+            [poses, ~] = ref_traj_gen(startPose, goalPose, 5);
             
-            startPose = goalPose;
-            goalPose = [0 rightLaneCenterR pi];
-            [poses2, ~] = ref_traj_gen(startPose, goalPose, rightLaneCenterR);
+            nextStartPose = goalPose;
+            nextGoalPose = [0 rightLaneCenterR pi];
             
-            poses = [poses1;poses2];
             computeModelHandles(poses);
             
             T = 0:dt:dt*(length(poses)-1);
@@ -147,13 +163,18 @@ while true
             goalPose = [leftLaneCenterR*sin(new_theta), ...
                 -leftLaneCenterR*cos(new_theta), ...
                 new_theta];
-            [poses1, ~] = ref_traj_gen(startPose, goalPose, 5);
+            [poses, ~] = ref_traj_gen(startPose, goalPose, 5);
             
-            startPose = goalPose;
-            goalPose = [0 leftLaneCenterR pi];
-            [poses2, ~] = ref_traj_gen(startPose, goalPose, leftLaneCenterR);
+            nextStartPose = goalPose;
+            nextGoalPose = [0 leftLaneCenterR pi];
             
-            poses = [poses1;poses2];
+            computeModelHandles(poses);
+            
+            T = 0:dt:dt*(length(poses)-1);
+        else
+            turningCurrently = 0;
+            
+            [poses, ~] = ref_traj_gen(nextStartPose, nextGoalPose, nextGoalPose(2));
             computeModelHandles(poses);
             
             T = 0:dt:dt*(length(poses)-1);
