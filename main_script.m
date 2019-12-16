@@ -134,7 +134,7 @@ while true
     hold off
     
     
-    if (length(Y) > 5000)
+    if ((Y(1,end)^2+(Y(3,end)-pi)^2)^0.5<0.2)
         break;
     else
         if (turn == 1)      % turn to right lane
