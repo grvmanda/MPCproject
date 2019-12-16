@@ -35,55 +35,14 @@ path.cline = [path.xCL;...
     path.yCL];
 
 
-%% trajectory
+%% initial trajectory
 
 startPose = [0 -rightLaneCenterR 0];
-goalPose = [rightLaneCenterR 0 pi/2];
+goalPose = [0 rightLaneCenterR pi];
 
-[poses1, delta_ref1] = ref_traj_gen(startPose, goalPose, rightLaneCenterR);
-
-dist_travelled = 10;
-theta_diff = dist_travelled/rightLaneCenterR;
-
-startPose = [rightLaneCenterR 0 pi/2];
-% goalPose = [(105*cos(theta_diff)) (0+105*sin(theta_diff)) (pi/2+theta_diff)];
-goalPose = [(leftLaneCenterR*cos(theta_diff)) (0+leftLaneCenterR*sin(theta_diff)) (pi/2+theta_diff)];
-
-[poses2, delta_ref2] = ref_traj_gen(startPose, goalPose, 5);
-
-startPose = [(leftLaneCenterR*cos(theta_diff)) (0+leftLaneCenterR*sin(theta_diff)) (pi/2+theta_diff)];
-goalPose = [0 leftLaneCenterR pi];
-
-[poses3, delta_ref3] = ref_traj_gen(startPose, goalPose, leftLaneCenterR);
-
-poses = [poses1;...
-    poses2;...
-    poses3];
-delta_ref_complete = [delta_ref1*0, delta_ref2*0, delta_ref3*0];
+[poses, ~] = ref_traj_gen(startPose, goalPose, rightLaneCenterR);
 
 %% Model Setup
-% Y_ref = poses';
-% U_ref = [constVel*ones(1, length(poses));...
-%     delta_ref_complete];
-% 
-% x = @(i) Y_ref(1, i);
-% y = @(i) Y_ref(2, i);
-% psi = @(i) Y_ref(3, i);
-% 
-% u = @(i) U_ref(1, i);
-% delta = @(i) U_ref(2, i);
-% 
-% A_disc = @(i) [0, 0, (-u(i)*sin(psi(i))-b/L*u(i)*tan(delta(i))*cos(psi(i)));...
-%     0, 0, (u(i)*cos(psi(i))-b/L*u(i)*tan(delta(i))*sin(psi(i)));...
-%     0, 0, 0];
-%   
-% A = @(i) (eye(3) + dt*A_disc(i));
-% 
-% B = @(i) dt*[(cos(psi(i))-b/L*tan(delta(i))*sin(psi(i))), ...
-%     ((-b/L)*u(i)*(sec(delta(i)))^2*sin(psi(i)));...
-%     (sin(psi(i))+b/L*tan(delta(i))*cos(psi(i))),...
-%     (b/L*u(i)*(sec(delta(i)))^2*cos(psi(i)));...
-%     (1/L*tan(delta(i))), (u(i)/L*(sec(delta(i)))^2)];
 
 global Y_ref U_ref A B x y psi u delta A_disc
 
@@ -183,7 +142,6 @@ while true
 end
 
 figure;
-% plot(Y_ref(1,:),Y_ref(2,:))
 hold on
 xlabel('x [m]')
 ylabel('y [m]')
@@ -198,29 +156,6 @@ end
 
 hold off
 
-% figure;
-% subplot(3,1,1)
-% plot(Y_ref(1,:),Y_ref(2,:))
-% hold on
-% xlabel('x [m]')
-% ylabel('y [m]')
-% subplot(3,1,2)
-% plot(Y_ref(1,:),U_ref(1,:))
-% hold on
-% xlabel('x [m]')
-% ylabel('u [m/s]')
-% subplot(3,1,3)
-% plot(Y_ref(1,:),U_ref(2,:))
-% hold on
-% xlabel('x [m]')
-% ylabel('\delta_f [rad]')
-% 
-% subplot(3,1,1)
-% plot(Y(1,:),Y(2,:))
-% subplot(3,1,2)
-% plot(Y_ref(1,:),U(1,:))
-% subplot(3,1,3)
-% plot(Y_ref(1,:),U(2,:))
 
 
 %% FUNCTIONS
