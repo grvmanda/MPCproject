@@ -1,4 +1,4 @@
-function Xobs = generateRandomObstacles(Nobs,TestTrack)
+function [Xobs, obs_heading] = generateRandomObstacles(Nobs,TestTrack)
 % Xobs = generateRandomObstacles(Nobs)
 %
 % Given a number of obstacles Nobs and a track, place obstacles at random
@@ -65,8 +65,8 @@ function Xobs = generateRandomObstacles(Nobs,TestTrack)
     % using in ROB 599
     obs_min_length = 2 ;
     obs_max_length = 2 ;
-    obs_min_width = 2 ; % tunable
-    obs_max_width = 2 ; % tunable
+    obs_min_width = 2.5 ; % tunable
+    obs_max_width = 2.5 ; % tunable
     obs_lengths = (obs_max_length - obs_min_length).*rand(1,Nobs) + obs_min_length ;
     obs_widths = (obs_max_width - obs_min_width).*rand(1,Nobs) + obs_min_width ;
     obs_sides = round(rand(1,Nobs)) ; % 0 is right, 1 is left
@@ -78,12 +78,15 @@ function Xobs = generateRandomObstacles(Nobs,TestTrack)
         % create box
         lidx = obs_lengths(idx) ;
         widx = obs_widths(idx) ;
-        obs_box = [0, 0, lidx, lidx ;
-                   0, -widx, -widx, 0] ;
-
-        % if the box is on left side of track, shift it by +widx in its
-        % local y-direction
-        %obs_box = obs_box + obs_sides(idx).*[zeros(1,4) ; widx.*ones(1,4)] ;
+        sidex = obs_sides(idx);
+        
+        if sidex == 0 % right side
+            obs_box = [0, 0, lidx, lidx ;
+                       0, -widx, -widx, 0] ;           
+        else % left side
+            obs_box = [-lidx, -lidx, 0, 0 ;
+                       widx, 0, 0, widx] ;
+        end
 
         % rotate box to track orientation
         hidx = obs_heading(idx) ;
@@ -95,16 +98,6 @@ function Xobs = generateRandomObstacles(Nobs,TestTrack)
         yidx = obs_start_y(idx) ;
         obs_box = obs_box + repmat([xidx;yidx],1,4) ;
         
-        % if the box is on left side of track, shift it by +widx in its
-        % local y-direction
-        offset = 3; % tunable
-        
-        if hidx < 0
-            obs_box = obs_box + obs_sides(idx).*[zeros(1,4) ; offset.*ones(1,4)] ;
-        else
-            obs_box = obs_box - obs_sides(idx).*[zeros(1,4) ; offset.*ones(1,4)] ;
-        end
-
         % fill in Xobs
         Xobs{idx} = obs_box' ;
     end
