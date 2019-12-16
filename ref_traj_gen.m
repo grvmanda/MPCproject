@@ -13,8 +13,8 @@ function [poses, delta_ref] = ref_traj_gen(startPose, goalPose, minRadius)
     [pathSegObj, pathCosts] = connect(dubConnObj,startPose,goalPose);
     pathSegObj{1}.MotionTypes
 
-    figure;
-    show(pathSegObj{1})
+%     figure;
+%     show(pathSegObj{1})
     
     len = pathSegObj{1}.Length;
 
