@@ -27,7 +27,7 @@ function [Y,U,turn] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs,pat
     eY = NaN(size(Y)); % error in states (actual - reference)
     
     % Set random initial condition
-    eY0 = [0;-0.25;0]; % parameterize?
+    eY0 = [0;0;0]; % parameterize?
     Y(:,1) = Y_ref(:,1) - eY0;
     
     
