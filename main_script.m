@@ -60,7 +60,6 @@ input_range=[0,   5;...
 %11 timesteps for 3 states, 10 timesteps for 2 inputs
 npred=10;
 Ndec=(npred+1)*nstates+ninputs*npred;
-T = 0:dt:dt*(length(poses)-1);
 
 numObs = 7;
 
@@ -70,9 +69,10 @@ Y = [];
 U = [];
 
 turningCurrently = 0;
+minTurnRadius = 5;
 
 while true
-    [Yt,Ut, turn] = runMPC(input_range,npred,length(T),Y_ref,U_ref,A,B,Xobs,path,turningCurrently);
+    [Yt,Ut, turn] = runMPC(input_range,npred,length(poses),Y_ref,U_ref,A,B,Xobs,path,turningCurrently);
     Y = [Y, Yt];
     U = [U, Ut];
     
@@ -92,53 +92,16 @@ while true
 
     hold off
     
-    
     if ((Y(1,end)^2+(Y(3,end)-pi)^2)^0.5<0.2)
         break;
+    elseif (turn == 0)
+        turningCurrently = 0;
+        [poses, ~] = ref_traj_gen(nextStartPose, nextGoalPose, nextGoalPose(2));
     else
-        if (turn == 1)      % turn to right lane
-            turningCurrently = 1;
-            startPose = Yt(:,end)';
-            dist_travelled = 10;
-            theta_diff = dist_travelled/rightLaneCenterR;
-            new_theta = Yt(3,end)+theta_diff;
-            goalPose = [rightLaneCenterR*sin(new_theta),...
-                -rightLaneCenterR*cos(new_theta),...
-                new_theta];
-            [poses, ~] = ref_traj_gen(startPose, goalPose, 5);
-            
-            nextStartPose = goalPose;
-            nextGoalPose = [0 rightLaneCenterR pi];
-            
-            computeModelHandles(poses);
-            
-            T = 0:dt:dt*(length(poses)-1);
-        elseif (turn == 2)  % turn to left lane
-            turningCurrently = 1;
-            startPose = Yt(:,end)';
-            dist_travelled = 10;
-            theta_diff = dist_travelled/leftLaneCenterR;
-            new_theta = Yt(3,end)+theta_diff;
-            goalPose = [leftLaneCenterR*sin(new_theta), ...
-                -leftLaneCenterR*cos(new_theta), ...
-                new_theta];
-            [poses, ~] = ref_traj_gen(startPose, goalPose, 5);
-            
-            nextStartPose = goalPose;
-            nextGoalPose = [0 leftLaneCenterR pi];
-            
-            computeModelHandles(poses);
-            
-            T = 0:dt:dt*(length(poses)-1);
-        else
-            turningCurrently = 0;
-            
-            [poses, ~] = ref_traj_gen(nextStartPose, nextGoalPose, nextGoalPose(2));
-            computeModelHandles(poses);
-            
-            T = 0:dt:dt*(length(poses)-1);
-        end
+        turningCurrently = 1;
+        [poses,nextStartPose,nextGoalPose] = getTurnPoses(turn,Yt);
     end
+    computeModelHandles(poses);
 end
 
 figure;
