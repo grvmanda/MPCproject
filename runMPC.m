@@ -75,7 +75,7 @@ function [Y,U,turn] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs,pat
         if (hasObs == 1) && (turningCurrently == 0)
             obs1 = senseObstacles(Y(:,i+1),Xobs);
             
-            obs_center = obstacleCenter(obs1);
+            obs_center = obstacleCenter(obs1(1));
             OBSdists_to_left = min(vecnorm(obs_center' - [path.xL; path.yL]));
             OBSdists_to_right = min(vecnorm(obs_center' - [path.xR; path.yR]));
             EGOdists_to_left = min(vecnorm(Y(1:2,i+1) - [path.xL; path.yL]));

@@ -41,7 +41,7 @@ function [Xobs, obs_heading] = generateRandomObstacles(Nobs,TestTrack)
     total_dist_along_cline = dists_along_cline(end) ;
 
     % create a vector of random distances between obstacles
-    min_dist_btwn_obs = 10 ; % meters
+    min_dist_btwn_obs = 15 ; % meters
     max_dist_btwn_obs = total_dist_along_cline / Nobs ; % also meters
     dists_btwn_obs = (max_dist_btwn_obs-min_dist_btwn_obs).*rand(1,Nobs) + min_dist_btwn_obs ;
     obs_start_dists = cumsum(dists_btwn_obs) ;

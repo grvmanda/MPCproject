@@ -65,6 +65,26 @@ numObs = 7;
 
 Xobs = generateRandomObstacles(numObs,path);
 
+% load('savedObs.mat');
+% load('errorObs.mat');
+
+figure;
+hold on
+xlabel('x [m]')
+ylabel('y [m]')
+plot(path.xL, path.yL, 'k', path.xR, path.yR, 'k', ...
+    path.xCL, path.yCL, 'b');
+
+for i=1:numObs
+    ob = Xobs{i};
+    plot(ob(:,1), ob(:,2));
+end
+
+hold off
+
+
+
+
 Y = [];
 U = [];
 
