@@ -4,7 +4,7 @@
 
 % npred is the length of the prediction horizon
 
-function [Y,U,turn] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs,path, turningCurrently)
+function [Y,U,turn] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs,path, turningCurrently, oldY, oldU)
     
     turn = 0;
 
@@ -27,7 +27,8 @@ function [Y,U,turn] = runMPC(input_range,npred,T_length,Y_ref,U_ref,A,B,Xobs,pat
     eY = NaN(size(Y)); % error in states (actual - reference)
     
     % Set random initial condition
-    eY0 = [0;0;0]; % parameterize?
+%     eY0 = [0;0;0]; % parameterize?
+    eY0 = Y_ref(:, 1) - oldY(:, end);
     Y(:,1) = Y_ref(:,1) - eY0;
     
     

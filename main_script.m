@@ -61,12 +61,13 @@ input_range=[0,   5;...
 npred=10;
 Ndec=(npred+1)*nstates+ninputs*npred;
 
-numObs = 7;
+numObs = 8;
 
 Xobs = generateRandomObstacles(numObs,path);
 
 % load('savedObs.mat');
 % load('errorObs.mat');
+load('ObsForReport.mat');
 
 figure;
 hold on
@@ -85,14 +86,14 @@ hold off
 
 
 
-Y = [];
-U = [];
+Y = [0; -rightLaneCenterR; 0];
+U = [5; 0];
 
 turningCurrently = 0;
 minTurnRadius = 5;
 
 while true
-    [Yt,Ut, turn] = runMPC(input_range,npred,length(poses),Y_ref,U_ref,A,B,Xobs,path,turningCurrently);
+    [Yt,Ut, turn] = runMPC(input_range,npred,length(poses),Y_ref,U_ref,A,B,Xobs,path,turningCurrently,Y,U);
     Y = [Y, Yt];
     U = [U, Ut];
     
@@ -137,7 +138,22 @@ for i=1:numObs
     plot(ob(:,1), ob(:,2));
 end
 
+title('Car on track wihtout obstacles');
 hold off
+
+T = 0:0.01:0.01*(length(U)-1);
+
+figure;
+subplot(2,1,1)
+plot(T, U(1, :));
+title('velocity');
+xlabel('time (s)');
+ylabel('(m/s)');
+subplot(2,1,2)
+plot(T, U(2, :));
+title('delta');
+xlabel('time (s)');
+ylabel('(rad)');
 
 
 

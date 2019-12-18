@@ -20,3 +20,4 @@ function [poses,nextStartPose,nextGoalPose] = getTurnPoses(turn,Yt)
     [poses,~] = ref_traj_gen(startPose, nextStartPose, minTurnRadius);
     nextGoalPose = [0 laneCenterR pi];
 end
+
